@@ -21,12 +21,15 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Update Browserslist DB
+        run: npx update-browserslist-db@latest
+
       - name: Run tests
         run: npm test -- --watchAll=false --passWithNoTests
 
-
       - name: Build React app
-        run: npm run build
+        run: |
+          CI=false npm run build
 
       - name: Log in to Azure Container Registry
         uses: azure/docker-login@v1
