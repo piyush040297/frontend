@@ -42,8 +42,8 @@ jobs:
           appSourcePath: ${{ github.workspace }}
           dockerfilePath: ./Dockerfile
           registryUrl: ${{ secrets.ACR_LOGIN_SERVER }}
-          registryUsername: ${{ secrets.ACR_USERNAME }}
-          registryPassword: ${{ secrets.ACR_PASSWORD }}
+          registryUsername: ${{ secrets.DEMOAPP_REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.DEMOAPP_REGISTRY_PASSWORD }}
           containerAppName: demoapp
           resourceGroup: POC
           imageToBuild: ${{ secrets.ACR_LOGIN_SERVER }}/frontend:${{ github.ref_name }}-${{ github.run_id }}
