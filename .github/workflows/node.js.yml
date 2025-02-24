@@ -47,3 +47,4 @@ jobs:
           containerAppName: demoapp
           resourceGroup: POC
           imageToBuild: ${{ secrets.ACR_LOGIN_SERVER }}/frontend:${{ github.ref_name }}-${{ github.run_id }}
+          
