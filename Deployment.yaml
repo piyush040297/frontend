@@ -13,14 +13,16 @@ jobs:
 - job: deploy
   displayName: 'Build, Test, and Deploy to Azure Container App'
   steps:
-    - task: Checkout@v2
+
+    - checkout: self
       displayName: 'Checkout repository'
 
-    - task: UseNode@2
-      displayName: 'Set up Node.js'
+    - task: NodeTool@0
       inputs:
-        version: '14.x'
-
+       versionSource: 'spec'
+       versionSpec: '14.x'
+      displayName: 'Set up Node.js'
+      
     - script: npm install
       displayName: 'Install dependencies'
 
