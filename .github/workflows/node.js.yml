@@ -1,9 +1,9 @@
 name: Build, Test, and Deploy to Azure Container App
 
-on:
-  push:
-    branches:
-      - main
+# on:
+#   push:
+#     branches:
+#       - main
 
 jobs:
   deploy:
