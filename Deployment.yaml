@@ -20,7 +20,7 @@ jobs:
     - task: NodeTool@0
       inputs:
        versionSource: 'spec'
-       versionSpec: '14.x'
+       versionSpec: '18.x'  # Use supported Node.js version
       displayName: 'Set up Node.js'
       
     - script: npm install
@@ -29,11 +29,17 @@ jobs:
     - script: npx browserslist@latest --update-db
       displayName: 'Update Browserslist DB'
 
-    - script: npm test -- --watchAll=false --passWithNoTests
+    - script: |
+        if [ -d "tests" ]; then
+          npm test -- --watchAll=false
+        else
+          echo "Skipping tests (No test folder found)"
+        fi
       displayName: 'Run tests'
 
     - script: |
-        CI=false npm run build
+        export CI=false
+        npm run build
       displayName: 'Build React app'
 
     - task: AzureCLI@2
@@ -53,6 +59,7 @@ jobs:
         command: 'buildAndPush'
         Dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
         tags: |
+          latest
           $(Build.SourceBranchName)-$(Build.BuildId)
 
     - task: AzureCLI@2
