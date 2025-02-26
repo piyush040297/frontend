@@ -1,0 +1,66 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  - group: MyVariableGroup
+
+jobs:
+- job: deploy
+  displayName: 'Build, Test, and Deploy to Azure Container App'
+  steps:
+    - task: Checkout@v2
+      displayName: 'Checkout repository'
+
+    - task: UseNode@2
+      displayName: 'Set up Node.js'
+      inputs:
+        version: '14.x'
+
+    - script: npm install
+      displayName: 'Install dependencies'
+
+    - script: npx browserslist@latest --update-db
+      displayName: 'Update Browserslist DB'
+
+    - script: npm test -- --watchAll=false --passWithNoTests
+      displayName: 'Run tests'
+
+    - script: |
+        CI=false npm run build
+      displayName: 'Build React app'
+
+    - task: AzureCLI@2
+      displayName: 'Log in to Azure'
+      inputs:
+        azureSubscription: '$(azureSubscription)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az acr login --name $(acrName)
+
+    - task: Docker@2
+      displayName: 'Build and push container image to registry'
+      inputs:
+        containerRegistry: '$(dockerRegistryServiceConnection)'
+        repository: '$(acrName)/frontend'
+        command: 'buildAndPush'
+        Dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
+        tags: |
+          $(Build.SourceBranchName)-$(Build.BuildId)
+
+    - task: AzureCLI@2
+      displayName: 'Deploy to Azure Container App'
+      inputs:
+        azureSubscription: '$(azureSubscription)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az containerapp update \
+            --name demoapp \
+            --resource-group POC \
+            --image $(acrName).azurecr.io/frontend:$(Build.SourceBranchName)-$(Build.BuildId)
